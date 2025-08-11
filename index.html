@@ -1115,12 +1115,16 @@
         .bottom-toolbar {
           flex-wrap: wrap;
           gap: 8px;
+          display: flex;
+          width: 100%;
         }
 
         .toolbar-left,
         .toolbar-right {
           gap: 6px;
           flex-wrap: wrap;
+          width: 100%;
+          justify-content: center;
         }
 
         .btn-sm {
@@ -1222,6 +1226,11 @@
           padding: 8px 10px;
           font-size: 13px;
           min-height: 40px;
+          flex: 0 1 auto;
+        }
+
+        .settings-btn-inline {
+          display: inline-flex;
         }
 
         .toolbar-left,
@@ -1297,10 +1306,25 @@
 
       /* Very small screens */
       @media (max-width: 360px) {
+        .bottom-toolbar {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 8px;
+        }
+
+        .toolbar-left,
+        .toolbar-right {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
         .btn-sm {
           padding: 8px 10px;
           font-size: 12px;
           min-height: 40px;
+          width: 100%;
+          justify-content: center;
         }
 
         .record-btn {
