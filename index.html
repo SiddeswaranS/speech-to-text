@@ -1,0 +1,2453 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VoiceScript - Professional Speech to Text</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        /* Light Theme */
+        --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --bg-secondary: linear-gradient(145deg, #f0f2f5, #ffffff);
+        --bg-card: rgba(255, 255, 255, 0.95);
+        --bg-card-hover: rgba(255, 255, 255, 0.98);
+        --text-primary: #1a1a1a;
+        --text-secondary: #4a5568;
+        --text-muted: #718096;
+        --accent-primary: #667eea;
+        --accent-secondary: #764ba2;
+        --success: #48bb78;
+        --error: #f56565;
+        --warning: #ed8936;
+        --border: rgba(226, 232, 240, 0.8);
+        --shadow: rgba(0, 0, 0, 0.1);
+        --shadow-hover: rgba(0, 0, 0, 0.15);
+        --glass-bg: rgba(255, 255, 255, 0.25);
+        --glass-border: rgba(255, 255, 255, 0.18);
+        --backdrop-blur: blur(20px);
+      }
+
+      [data-theme="dark"] {
+        /* Dark Theme */
+        --bg-primary: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+        --bg-secondary: linear-gradient(145deg, #1a202c, #2d3748);
+        --bg-card: rgba(45, 55, 72, 0.95);
+        --bg-card-hover: rgba(45, 55, 72, 0.98);
+        --text-primary: #f7fafc;
+        --text-secondary: #e2e8f0;
+        --text-muted: #a0aec0;
+        --accent-primary: #805ad5;
+        --accent-secondary: #9f7aea;
+        --success: #68d391;
+        --error: #fc8181;
+        --warning: #f6ad55;
+        --border: rgba(74, 85, 104, 0.6);
+        --shadow: rgba(0, 0, 0, 0.3);
+        --shadow-hover: rgba(0, 0, 0, 0.4);
+        --glass-bg: rgba(26, 32, 44, 0.25);
+        --glass-border: rgba(226, 232, 240, 0.1);
+        --backdrop-blur: blur(20px);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          system-ui, sans-serif;
+        background: var(--bg-primary);
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+        padding: 0;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+      }
+
+      .app-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        width: 100%;
+        position: relative;
+      }
+
+      .main-container {
+        background: var(--bg-card);
+        backdrop-filter: var(--backdrop-blur);
+        padding: 16px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        margin: 0;
+        border-radius: 0;
+      }
+
+      .main-container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--glass-border),
+          transparent
+        );
+        z-index: 1;
+      }
+
+      /* Settings Modal Styles */
+      .settings-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(10px);
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .settings-modal.show {
+        display: flex;
+        opacity: 1;
+      }
+
+      .settings-panel {
+        background: var(--bg-card);
+        backdrop-filter: var(--backdrop-blur);
+        border-radius: 8px;
+        width: 90%;
+        max-width: 400px;
+        max-height: 80vh;
+        overflow: hidden;
+        box-shadow: 0 32px 64px var(--shadow);
+        border: 1px solid var(--glass-border);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: scale(0.9);
+        position: relative;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .settings-panel-content {
+        padding: 24px;
+        overflow-y: auto;
+        flex: 1;
+        position: relative;
+        z-index: 1;
+      }
+
+      .settings-panel-content::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .settings-panel-content::-webkit-scrollbar-track {
+        background: var(--border);
+        border-radius: 3px;
+      }
+
+      .settings-panel-content::-webkit-scrollbar-thumb {
+        background: var(--accent-primary);
+        border-radius: 3px;
+        transition: background 0.3s ease;
+      }
+
+      .settings-panel-content::-webkit-scrollbar-thumb:hover {
+        background: var(--accent-secondary);
+      }
+
+      /* For Firefox */
+      .settings-panel-content {
+        scrollbar-width: thin;
+        scrollbar-color: var(--accent-primary) var(--border);
+      }
+
+      .settings-panel * {
+        position: relative;
+        z-index: 1;
+      }
+
+      .settings-modal.show .settings-panel {
+        transform: scale(1);
+      }
+
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        position: relative;
+        padding: 0 8px;
+        height: 60px;
+        flex-shrink: 0;
+      }
+
+      .header h1 {
+        color: var(--text-primary);
+        font-size: 1.5rem;
+        margin: 0;
+        font-weight: 600;
+        letter-spacing: -0.025em;
+        background: linear-gradient(
+          135deg,
+          var(--accent-primary),
+          var(--accent-secondary)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .header .logo {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+      }
+
+      .header .logo i {
+        font-size: 1.5rem;
+        color: var(--accent-primary);
+        animation: float 3s ease-in-out infinite;
+      }
+
+      /* Floating Settings Button */
+      .settings-fab {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(
+          135deg,
+          var(--accent-primary),
+          var(--accent-secondary)
+        );
+        color: white;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 100;
+      }
+
+      .settings-fab:hover {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 12px 32px rgba(102, 126, 234, 0.4);
+      }
+
+      .settings-fab:active {
+        transform: scale(0.95);
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-8px);
+        }
+      }
+
+      .main-content {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        overflow: hidden;
+        gap: 16px;
+      }
+
+      .controls {
+        display: grid;
+        grid-template-columns: 75% 25%;
+        gap: 20px;
+        padding: 20px;
+        align-items: center;
+        flex-shrink: 0;
+      }
+
+      .recording-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 20px;
+        background: var(--glass-bg);
+        backdrop-filter: var(--backdrop-blur);
+        border-radius: 16px;
+        border: 1px solid var(--glass-border);
+      }
+
+      .record-btn-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .record-btn {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: none;
+        background: linear-gradient(
+          135deg,
+          var(--accent-primary),
+          var(--accent-secondary)
+        );
+        color: white;
+        font-size: 1.25rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 8px 24px var(--shadow);
+        position: relative;
+        overflow: hidden;
+        z-index: 2;
+      }
+
+      .record-btn::before {
+        content: "";
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        font-size: 0rem;
+        background: linear-gradient(
+          45deg,
+          var(--accent-primary),
+          var(--accent-secondary),
+          var(--accent-primary)
+        );
+        border-radius: 50%;
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .record-btn:hover {
+        transform: translateY(-4px) scale(1.05);
+        box-shadow: 0 24px 48px var(--shadow-hover);
+      }
+
+      .record-btn:hover::before {
+        opacity: 1;
+      }
+
+      .record-btn:active {
+        transform: translateY(-2px) scale(0.98);
+      }
+
+      .record-btn.recording {
+        background: linear-gradient(135deg, #e53e3e, #c53030);
+        animation: recordingPulse 2s infinite;
+      }
+
+      .record-btn.recording::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 24px;
+        height: 24px;
+        background: white;
+        border-radius: 4px;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .waveform-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 120px;
+        height: 120px;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .waveform-container.active {
+        opacity: 1;
+      }
+
+      .waveform-ring {
+        position: absolute;
+        border: 2px solid var(--accent-primary);
+        border-radius: 50%;
+        animation: waveformRipple 2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+      }
+
+      .waveform-ring:nth-child(1) {
+        width: 90px;
+        height: 90px;
+        top: 15px;
+        left: 15px;
+        animation-delay: 0s;
+      }
+
+      .waveform-ring:nth-child(2) {
+        width: 105px;
+        height: 105px;
+        top: 7.5px;
+        left: 7.5px;
+        animation-delay: 0.5s;
+      }
+
+      .waveform-ring:nth-child(3) {
+        width: 120px;
+        height: 120px;
+        top: 0;
+        left: 0;
+        animation-delay: 1s;
+      }
+
+      @keyframes recordingPulse {
+        0%,
+        100% {
+          transform: scale(1);
+          box-shadow: 0 16px 32px var(--shadow), 0 0 0 0 rgba(229, 62, 62, 0.4);
+        }
+        50% {
+          transform: scale(1.02);
+          box-shadow: 0 20px 40px var(--shadow-hover),
+            0 0 0 10px rgba(229, 62, 62, 0);
+        }
+      }
+
+      @keyframes waveformRipple {
+        0% {
+          transform: scale(0.8);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(1.2);
+          opacity: 0;
+        }
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-start;
+        flex-shrink: 0;
+        align-items: center;
+      }
+
+      .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+        overflow: hidden;
+        text-decoration: none;
+        min-height: 44px;
+        min-width: 44px;
+      }
+
+      .btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      .btn:hover::before {
+        left: 100%;
+      }
+
+      .btn-secondary {
+        background: var(--glass-bg);
+        color: var(--text-primary);
+        border: 1px solid var(--border);
+        backdrop-filter: blur(10px);
+      }
+
+      .btn-secondary:hover {
+        background: var(--bg-card-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px var(--shadow);
+      }
+
+      .btn-danger {
+        background: linear-gradient(135deg, var(--error), #e53e3e);
+        color: white;
+      }
+
+      .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(245, 101, 101, 0.3);
+      }
+
+      .status-container {
+        text-align: center;
+        position: relative;
+        flex-shrink: 0;
+      }
+
+      .status {
+        font-size: 1.125rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .status.listening {
+        color: var(--error);
+      }
+
+      .status.idle {
+        color: var(--text-secondary);
+      }
+
+      .status-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        transition: all 0.3s ease;
+      }
+
+      .status.idle .status-indicator {
+        background: var(--text-muted);
+      }
+
+      .status.listening .status-indicator {
+        background: var(--error);
+        animation: statusPulse 1.5s infinite;
+      }
+
+      @keyframes statusPulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.5;
+          transform: scale(1.2);
+        }
+      }
+
+      .output-container {
+        position: relative;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .output-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        padding: 0 4px;
+        flex-shrink: 0;
+      }
+
+      .output-stats {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 14px;
+        color: var(--text-muted);
+        flex-wrap: wrap;
+      }
+
+      .quick-language-selector {
+        position: relative;
+      }
+
+      .quick-language-dropdown {
+        background: var(--glass-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 6px 8px;
+        font-size: 12px;
+        color: var(--text-primary);
+        cursor: pointer;
+        outline: none;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+        min-height: 32px;
+      }
+
+      .quick-language-dropdown:focus {
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+      }
+
+      .quick-language-dropdown:hover {
+        background: var(--bg-card-hover);
+      }
+
+      .output {
+        background: var(--glass-bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+        font-size: 1rem;
+        line-height: 1.6;
+        color: var(--text-primary);
+        resize: none;
+        width: 100%;
+        font-family: "Inter", system-ui, sans-serif;
+        outline: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        backdrop-filter: blur(10px);
+        position: relative;
+        flex: 1;
+        overflow-y: auto;
+      }
+
+      .output:focus {
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        background: var(--bg-card);
+      }
+
+      .output::placeholder {
+        color: var(--text-muted);
+        font-style: normal;
+        opacity: 0.7;
+      }
+
+      .toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 8px;
+        padding: 8px 0;
+        border-top: 1px solid var(--border);
+        flex-shrink: 0;
+      }
+
+      .toolbar-left {
+        display: flex;
+        gap: 8px;
+      }
+
+      .toolbar-right {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .settings-btn-inline {
+        padding: 12px 16px;
+        background: var(--bg-card);
+        color: var(--text-primary);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+      }
+
+      .settings-btn-inline:hover {
+        background: var(--accent-primary);
+        color: white;
+        border-color: var(--accent-primary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px var(--shadow);
+      }
+
+      .btn-sm {
+        padding: 12px 16px;
+        font-size: 14px;
+        border-radius: 8px;
+        white-space: nowrap;
+        min-height: 44px;
+        min-width: 44px;
+      }
+
+      .btn-primary {
+        background: linear-gradient(
+          135deg,
+          var(--accent-primary),
+          var(--accent-secondary)
+        );
+        color: white;
+        border: none;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-success {
+        background: linear-gradient(135deg, var(--success), #38a169);
+        color: white;
+        border: none;
+      }
+
+      .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(72, 187, 120, 0.3);
+      }
+
+      /* Settings Modal Header */
+      .settings-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 24px 24px 16px 24px;
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+      }
+
+      .settings-close {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        min-height: 44px;
+        min-width: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .settings-close:hover {
+        background: var(--glass-bg);
+        color: var(--text-primary);
+      }
+
+      .settings-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+        position: relative;
+        z-index: 2;
+      }
+
+      .theme-toggle {
+        background: var(--glass-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: var(--text-primary);
+        font-size: 1.125rem;
+      }
+
+      .theme-toggle:hover {
+        background: var(--bg-card-hover);
+        transform: scale(1.1);
+      }
+
+      .setting-group {
+        margin-bottom: 20px;
+      }
+
+      .setting-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+      }
+
+      .form-select {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--glass-bg);
+        color: var(--text-primary);
+        font-size: 14px;
+        cursor: pointer;
+        outline: none;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+        min-height: 44px;
+        box-sizing: border-box;
+      }
+
+      .form-select:focus {
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .slider-container {
+        margin-top: 8px;
+      }
+
+      .slider {
+        width: 100%;
+        height: 6px;
+        border-radius: 3px;
+        background: var(--border);
+        outline: none;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+
+      .slider::-webkit-slider-thumb {
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--accent-primary);
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .slider::-webkit-slider-thumb:hover {
+        transform: scale(1.2);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+
+      .error-toast {
+        position: fixed;
+        top: 24px;
+        right: 24px;
+        background: var(--error);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 12px;
+        box-shadow: 0 16px 32px rgba(245, 101, 101, 0.3);
+        transform: translateX(400px);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        max-width: 400px;
+      }
+
+      .error-toast.show {
+        transform: translateX(0);
+      }
+
+      .success-toast {
+        position: fixed;
+        top: 24px;
+        right: 24px;
+        background: var(--success);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 12px;
+        box-shadow: 0 16px 32px rgba(72, 187, 120, 0.3);
+        transform: translateX(400px);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        max-width: 400px;
+      }
+
+      .success-toast.show {
+        transform: translateX(0);
+      }
+
+      /* Floating Export Menu */
+      .export-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        box-shadow: 0 8px 24px var(--shadow);
+        z-index: 1000;
+        min-width: 150px;
+        padding: 8px 0;
+        margin-top: 4px;
+        opacity: 0;
+        transform: translateY(-10px);
+        visibility: hidden;
+        transition: all 0.2s ease;
+      }
+
+      .export-menu.show {
+        opacity: 1;
+        transform: translateY(0);
+        visibility: visible;
+      }
+
+      .export-menu-item {
+        display: block;
+        width: 100%;
+        padding: 8px 16px;
+        text-align: left;
+        background: none;
+        border: none;
+        color: var(--text-primary);
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+
+      .export-menu-item:hover {
+        background: var(--glass-bg);
+      }
+
+      @media (max-width: 768px) {
+        .main-container {
+          padding: 12px;
+        }
+
+        .header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+          height: auto;
+          padding-bottom: 12px;
+        }
+
+        .controls {
+          grid-template-columns: 1fr;
+          gap: 12px;
+          padding: 12px;
+        }
+
+        .action-buttons {
+          order: 2;
+          justify-content: center;
+        }
+
+        .recording-section {
+          order: 1;
+        }
+
+        .output-stats {
+          justify-content: flex-start;
+          gap: 12px;
+        }
+
+        .quick-language-dropdown {
+          font-size: 11px;
+          padding: 4px 6px;
+          min-height: 28px;
+        }
+
+        .header h1 {
+          font-size: 1.25rem;
+        }
+
+        .header .logo i {
+          font-size: 1.25rem;
+        }
+
+        .record-btn {
+          width: 64px;
+          height: 64px;
+          font-size: 1.25rem;
+        }
+
+        .waveform-container {
+          width: 100px;
+          height: 100px;
+        }
+
+        .waveform-ring:nth-child(1) {
+          width: 75px;
+          height: 75px;
+          top: 12.5px;
+          left: 12.5px;
+        }
+
+        .waveform-ring:nth-child(2) {
+          width: 87.5px;
+          height: 87.5px;
+          top: 6.25px;
+          left: 6.25px;
+        }
+
+        .waveform-ring:nth-child(3) {
+          width: 100px;
+          height: 100px;
+          top: 0;
+          left: 0;
+        }
+
+        .action-buttons {
+          flex-wrap: wrap;
+          gap: 6px;
+        }
+
+        .toolbar {
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+
+        .toolbar-left,
+        .toolbar-right {
+          gap: 6px;
+        }
+
+        .btn-sm {
+          padding: 10px 12px;
+          font-size: 14px;
+          min-height: 44px;
+          flex: 0 0 auto;
+        }
+
+        .action-buttons {
+          flex-wrap: wrap;
+          gap: 8px;
+          justify-content: center;
+        }
+
+        .toolbar {
+          flex-wrap: wrap;
+          gap: 8px;
+          justify-content: center;
+        }
+
+        .toolbar-left,
+        .toolbar-right {
+          gap: 8px;
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+
+        .settings-fab {
+          width: 48px;
+          height: 48px;
+          bottom: 16px;
+          left: 16px;
+          font-size: 1rem;
+        }
+
+        .settings-panel {
+          padding: 20px;
+          width: 95%;
+          max-height: 90vh;
+        }
+
+        .error-toast,
+        .success-toast {
+          right: 16px;
+          left: 16px;
+          max-width: none;
+          transform: translateY(-100px);
+        }
+
+        .error-toast.show,
+        .success-toast.show {
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 480px) {
+        .main-container {
+          padding: 8px;
+        }
+
+        .output {
+          padding: 12px;
+          font-size: 16px;
+        }
+
+        .header {
+          padding-bottom: 8px;
+        }
+
+        .output-stats {
+          gap: 8px;
+          font-size: 12px;
+        }
+
+        .quick-language-dropdown {
+          font-size: 10px;
+          padding: 3px 4px;
+          min-height: 24px;
+        }
+
+        .header h1 {
+          font-size: 1.125rem;
+        }
+
+        .record-btn {
+          width: 56px;
+          height: 56px;
+          font-size: 1.125rem;
+        }
+
+        .action-buttons .btn {
+          padding: 8px 10px;
+          font-size: 14px;
+          min-height: 44px;
+          min-width: 44px;
+        }
+
+        .btn-sm {
+          padding: 8px 10px;
+          font-size: 13px;
+        }
+
+        .toolbar {
+          gap: 6px;
+        }
+
+        .toolbar-left,
+        .toolbar-right {
+          gap: 6px;
+        }
+
+        .settings-fab {
+          width: 44px;
+          height: 44px;
+          bottom: 12px;
+          left: 12px;
+          font-size: 0.875rem;
+        }
+      }
+
+      /* Focus styles for accessibility */
+      .btn:focus-visible,
+      .theme-toggle:focus-visible,
+      .form-select:focus-visible,
+      .record-btn:focus-visible {
+        outline: 2px solid var(--accent-primary);
+        outline-offset: 2px;
+      }
+
+      /* High contrast mode */
+      @media (prefers-contrast: high) {
+        :root {
+          --shadow: rgba(0, 0, 0, 0.3);
+          --shadow-hover: rgba(0, 0, 0, 0.4);
+          --border: #666;
+        }
+      }
+
+      /* Reduced motion */
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+
+      /* Print styles */
+      @media print {
+        .settings-panel,
+        .controls,
+        .toolbar {
+          display: none;
+        }
+
+        .main-container {
+          box-shadow: none;
+          border: 1px solid #000;
+        }
+
+        .output {
+          border: 1px solid #000;
+          background: white;
+          color: black;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Settings button will be inline with toolbar -->
+    <!-- Hidden button removed, settings button now inline -->
+
+    <!-- Main App Container -->
+    <div class="app-container">
+      <div class="main-container">
+        <!-- Compact Header -->
+        <div class="header">
+          <div class="logo">
+            <i class="fas fa-microphone-alt"></i>
+            <h1>VoiceScript</h1>
+          </div>
+          <div class="output-stats">
+            <span id="wordCount">Words: 0</span>
+            <span id="charCount">Characters: 0</span>
+            <span id="autoSaveStatus" style="display: none">
+              <i class="fas fa-save"></i>
+            </span>
+            <!-- Quick Language Selector -->
+            <div class="quick-language-selector">
+              <select
+                id="quickLanguageSelect"
+                class="quick-language-dropdown"
+                aria-label="Quick language selection"
+              >
+                <option value="en-US">🇺🇸 EN</option>
+                <option value="en-GB">🇬🇧 EN</option>
+                <option value="es-ES">🇪🇸 ES</option>
+                <option value="es-MX">🇲🇽 ES</option>
+                <option value="fr-FR">🇫🇷 FR</option>
+                <option value="de-DE">🇩🇪 DE</option>
+                <option value="it-IT">🇮🇹 IT</option>
+                <option value="pt-BR">🇧🇷 PT</option>
+                <option value="pt-PT">🇵🇹 PT</option>
+                <option value="zh-CN">🇨🇳 ZH</option>
+                <option value="zh-TW">🇹🇼 ZH</option>
+                <option value="ja-JP">🇯🇵 JA</option>
+                <option value="ko-KR">🇰🇷 KO</option>
+                <option value="ru-RU">🇷🇺 RU</option>
+                <option value="ar-SA">🇸🇦 AR</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+          <!-- Controls Section with 2-column layout -->
+          <div class="controls">
+            <!-- Left Column: Action buttons and controls (75%) -->
+            <div class="action-buttons">
+              <button id="clearBtn" class="btn btn-danger btn-sm">
+                <i class="fas fa-trash"></i>
+                Clear
+              </button>
+              <button id="undoBtn" class="btn btn-secondary btn-sm">
+                <i class="fas fa-undo"></i>
+                Undo
+              </button>
+              <button id="redoBtn" class="btn btn-secondary btn-sm">
+                <i class="fas fa-redo"></i>
+                Redo
+              </button>
+            </div>
+
+            <!-- Right Column: Recording section (25%) -->
+            <div class="recording-section">
+              <div class="record-btn-container">
+                <div class="waveform-container" id="waveformContainer">
+                  <div class="waveform-ring"></div>
+                  <div class="waveform-ring"></div>
+                  <div class="waveform-ring"></div>
+                </div>
+                <button
+                  id="recordBtn"
+                  class="record-btn"
+                  title="Click to start/stop recording"
+                  aria-label="Start/stop recording"
+                >
+                  <i class="fas fa-microphone"></i>
+                </button>
+              </div>
+
+              <div class="status-container">
+                <div id="status" class="status idle">
+                  <span class="status-indicator"></span>
+                  Ready to listen
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Output Container -->
+          <div class="output-container">
+            <textarea
+              id="output"
+              class="output"
+              placeholder="Your transcribed speech will appear here... Click the microphone to start recording."
+              aria-label="Transcription output"
+              readonly
+            ></textarea>
+
+            <div class="toolbar">
+              <div class="toolbar-left">
+                <button id="formatBtn" class="btn btn-secondary btn-sm">
+                  <i class="fas fa-text-height"></i>
+                  Format
+                </button>
+                <button id="speakBtn" class="btn btn-secondary btn-sm">
+                  <i class="fas fa-volume-up"></i>
+                  Speak
+                </button>
+              </div>
+              <div class="toolbar-right">
+                <button id="copyBtn" class="btn btn-success btn-sm">
+                  <i class="fas fa-copy"></i>
+                  Copy
+                </button>
+                <div style="position: relative; display: inline-block">
+                  <button id="exportBtn" class="btn btn-primary btn-sm">
+                    <i class="fas fa-download"></i>
+                    Export
+                    <i
+                      class="fas fa-chevron-down"
+                      style="margin-left: 4px; font-size: 0.6rem"
+                    ></i>
+                  </button>
+                  <div id="exportMenu" class="export-menu">
+                    <button class="export-menu-item" data-format="txt">
+                      <i class="fas fa-file-text" style="margin-right: 8px"></i>
+                      Download TXT
+                    </button>
+                    <button class="export-menu-item" data-format="doc">
+                      <i class="fas fa-file-word" style="margin-right: 8px"></i>
+                      Download DOC
+                    </button>
+                    <button class="export-menu-item" data-format="email">
+                      <i class="fas fa-envelope" style="margin-right: 8px"></i>
+                      Share via Email
+                    </button>
+                  </div>
+                </div>
+                <button id="settingsBtn" class="btn btn-secondary btn-sm settings-btn-inline">
+                  <i class="fas fa-cog"></i>
+                  Settings
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="settings-modal">
+      <div class="settings-panel">
+        <div class="settings-header">
+          <h3 class="settings-title">Settings</h3>
+          <button
+            id="settingsClose"
+            class="settings-close"
+            aria-label="Close Settings"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="settings-panel-content">
+          <div class="setting-group">
+            <label class="setting-label" for="languageSelect">Language</label>
+            <select
+              id="languageSelect"
+              class="form-select"
+              aria-label="Select language"
+            >
+              <option value="en-US">🇺🇸 English (US)</option>
+              <option value="en-GB">🇬🇧 English (UK)</option>
+              <option value="es-ES">🇪🇸 Español (Spain)</option>
+              <option value="es-MX">🇲🇽 Español (Mexico)</option>
+              <option value="fr-FR">🇫🇷 Français</option>
+              <option value="de-DE">🇩🇪 Deutsch</option>
+              <option value="it-IT">🇮🇹 Italiano</option>
+              <option value="pt-BR">🇧🇷 Português (Brazil)</option>
+              <option value="pt-PT">🇵🇹 Português (Portugal)</option>
+              <option value="zh-CN">🇨🇳 中文 (简体)</option>
+              <option value="zh-TW">🇹🇼 中文 (繁體)</option>
+              <option value="ja-JP">🇯🇵 日本語</option>
+              <option value="ko-KR">🇰🇷 한국어</option>
+              <option value="ru-RU">🇷🇺 Русский</option>
+              <option value="ar-SA">🇸🇦 العربية</option>
+            </select>
+          </div>
+
+          <div class="setting-group">
+            <label class="setting-label" for="fontSizeSlider">Font Size</label>
+            <div class="slider-container">
+              <input
+                type="range"
+                id="fontSizeSlider"
+                class="slider"
+                min="14"
+                max="24"
+                value="18"
+                step="1"
+                aria-label="Font size"
+              />
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  font-size: 0.75rem;
+                  color: var(--text-muted);
+                  margin-top: 4px;
+                "
+              >
+                <span>Small</span>
+                <span>Large</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <label class="setting-label">
+              <input
+                type="checkbox"
+                id="continuousMode"
+                style="margin-right: 8px"
+              />
+              Continuous Recording
+            </label>
+            <div
+              style="
+                font-size: 0.75rem;
+                color: var(--text-muted);
+                margin-top: 4px;
+              "
+            >
+              Keep recording until manually stopped
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <label class="setting-label">
+              <input
+                type="checkbox"
+                id="autoSave"
+                checked
+                style="margin-right: 8px"
+              />
+              Auto-save Transcriptions
+            </label>
+            <div
+              style="
+                font-size: 0.75rem;
+                color: var(--text-muted);
+                margin-top: 4px;
+              "
+            >
+              Automatically save to browser storage
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <label class="setting-label">
+              <input
+                type="checkbox"
+                id="timestamps"
+                style="margin-right: 8px"
+              />
+              Add Timestamps
+            </label>
+            <div
+              style="
+                font-size: 0.75rem;
+                color: var(--text-muted);
+                margin-top: 4px;
+              "
+            >
+              Include time markers in transcription
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <label class="setting-label">
+              <input
+                type="checkbox"
+                id="themeToggle"
+                style="margin-right: 8px"
+              />
+              Dark Mode
+            </label>
+            <div
+              style="
+                font-size: 0.75rem;
+                color: var(--text-muted);
+                margin-top: 4px;
+              "
+            >
+              Switch between light and dark themes
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <button
+              id="historyBtn"
+              class="btn btn-secondary"
+              style="width: 100%"
+            >
+              <i class="fas fa-history"></i>
+              View History
+            </button>
+          </div>
+
+          <div class="setting-group">
+            <button
+              id="shortcutsBtn"
+              class="btn btn-secondary"
+              style="width: 100%"
+            >
+              <i class="fas fa-keyboard"></i>
+              Keyboard Shortcuts
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="errorToast" class="error-toast">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span id="errorMessage"></span>
+    </div>
+
+    <div id="successToast" class="success-toast">
+      <i class="fas fa-check-circle"></i>
+      <span id="successMessage"></span>
+    </div>
+
+    <script>
+      class VoiceScriptApp {
+        constructor() {
+          this.recognition = null;
+          this.isListening = false;
+          this.finalTranscript = "";
+          this.interimTranscript = "";
+          this.transcriptionHistory = [];
+          this.currentHistoryIndex = -1;
+          this.settings = this.loadSettings();
+          this.startTime = null;
+
+          this.initElements();
+          this.initTheme();
+          this.initSpeechRecognition();
+          this.bindEvents();
+          this.initKeyboardShortcuts();
+          this.updateStats();
+          this.checkAutoSave();
+        }
+
+        initElements() {
+          // Core elements
+          this.recordBtn = document.getElementById("recordBtn");
+          this.clearBtn = document.getElementById("clearBtn");
+          this.copyBtn = document.getElementById("copyBtn");
+          this.languageSelect = document.getElementById("languageSelect");
+          this.quickLanguageSelect = document.getElementById(
+            "quickLanguageSelect"
+          );
+          this.status = document.getElementById("status");
+          this.output = document.getElementById("output");
+          this.waveformContainer = document.getElementById("waveformContainer");
+
+          // Modal and UI elements
+          this.settingsBtn = document.getElementById("settingsBtn");
+          this.settingsModal = document.getElementById("settingsModal");
+          this.settingsClose = document.getElementById("settingsClose");
+          this.themeToggle = document.getElementById("themeToggle");
+          this.fontSizeSlider = document.getElementById("fontSizeSlider");
+          this.continuousMode = document.getElementById("continuousMode");
+          this.autoSave = document.getElementById("autoSave");
+          this.timestamps = document.getElementById("timestamps");
+          this.undoBtn = document.getElementById("undoBtn");
+          this.redoBtn = document.getElementById("redoBtn");
+          this.formatBtn = document.getElementById("formatBtn");
+          this.speakBtn = document.getElementById("speakBtn");
+          this.exportBtn = document.getElementById("exportBtn");
+          this.exportMenu = document.getElementById("exportMenu");
+          this.historyBtn = document.getElementById("historyBtn");
+          this.shortcutsBtn = document.getElementById("shortcutsBtn");
+
+          // Stats elements
+          this.wordCount = document.getElementById("wordCount");
+          this.charCount = document.getElementById("charCount");
+          this.autoSaveStatus = document.getElementById("autoSaveStatus");
+
+          // Toast elements
+          this.errorToast = document.getElementById("errorToast");
+          this.successToast = document.getElementById("successToast");
+          this.errorMessage = document.getElementById("errorMessage");
+          this.successMessage = document.getElementById("successMessage");
+        }
+
+        // Settings Management
+        loadSettings() {
+          const defaultSettings = {
+            theme: "light",
+            fontSize: 18,
+            language: "en-US",
+            continuousMode: false,
+            autoSave: true,
+            timestamps: false,
+          };
+
+          try {
+            const saved = localStorage.getItem("voicescript-settings");
+            return saved
+              ? { ...defaultSettings, ...JSON.parse(saved) }
+              : defaultSettings;
+          } catch {
+            return defaultSettings;
+          }
+        }
+
+        saveSettings() {
+          try {
+            localStorage.setItem(
+              "voicescript-settings",
+              JSON.stringify(this.settings)
+            );
+          } catch (e) {
+            console.warn("Could not save settings:", e);
+          }
+        }
+
+        initTheme() {
+          document.documentElement.setAttribute(
+            "data-theme",
+            this.settings.theme
+          );
+          this.themeToggle.checked = this.settings.theme === "dark";
+
+          // Apply saved settings
+          this.fontSizeSlider.value = this.settings.fontSize;
+          this.languageSelect.value = this.settings.language;
+          this.quickLanguageSelect.value = this.settings.language;
+          this.continuousMode.checked = this.settings.continuousMode;
+          this.autoSave.checked = this.settings.autoSave;
+          this.timestamps.checked = this.settings.timestamps;
+
+          this.updateFontSize();
+        }
+
+        toggleTheme() {
+          this.settings.theme =
+            this.settings.theme === "light" ? "dark" : "light";
+          document.documentElement.setAttribute(
+            "data-theme",
+            this.settings.theme
+          );
+          this.themeToggle.checked = this.settings.theme === "dark";
+          this.saveSettings();
+          this.showSuccess("Theme updated");
+        }
+
+        updateFontSize() {
+          const fontSize = this.fontSizeSlider.value + "px";
+          this.output.style.fontSize = fontSize;
+          this.settings.fontSize = parseInt(this.fontSizeSlider.value);
+          this.saveSettings();
+        }
+
+        initSpeechRecognition() {
+          if (
+            !("webkitSpeechRecognition" in window) &&
+            !("SpeechRecognition" in window)
+          ) {
+            this.showError(
+              "Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari."
+            );
+            this.recordBtn.disabled = true;
+            return;
+          }
+
+          const SpeechRecognition =
+            window.SpeechRecognition || window.webkitSpeechRecognition;
+          this.recognition = new SpeechRecognition();
+
+          this.recognition.continuous = this.settings.continuousMode;
+          this.recognition.interimResults = true;
+          this.recognition.language = this.settings.language;
+
+          this.recognition.onstart = () => {
+            this.isListening = true;
+            this.startTime = new Date();
+            this.updateUI();
+            this.hideToasts();
+          };
+
+          this.recognition.onend = () => {
+            this.isListening = false;
+            this.updateUI();
+
+            if (this.settings.continuousMode && this.finalTranscript.trim()) {
+              // Restart if continuous mode is enabled
+              setTimeout(() => {
+                if (!this.isListening) {
+                  this.toggleRecording();
+                }
+              }, 100);
+            }
+          };
+
+          this.recognition.onresult = (event) => {
+            let interimTranscript = "";
+
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+              const transcript = event.results[i][0].transcript;
+
+              if (event.results[i].isFinal) {
+                let finalText = transcript;
+
+                // Add timestamp if enabled
+                if (this.settings.timestamps) {
+                  const timestamp = new Date().toLocaleTimeString();
+                  finalText = `[${timestamp}] ${finalText}`;
+                }
+
+                this.finalTranscript += finalText + " ";
+                this.saveToHistory();
+              } else {
+                interimTranscript += transcript;
+              }
+            }
+
+            this.interimTranscript = interimTranscript;
+            this.updateOutput();
+            this.updateStats();
+            this.autoSaveTranscription();
+          };
+
+          this.recognition.onerror = (event) => {
+            console.error("Speech recognition error:", event.error);
+
+            let errorMessage = "Recognition error: ";
+            switch (event.error) {
+              case "no-speech":
+                errorMessage += "No speech detected. Please try again.";
+                break;
+              case "audio-capture":
+                errorMessage += "Microphone not found or accessible.";
+                break;
+              case "not-allowed":
+                errorMessage +=
+                  "Microphone access denied. Please allow access.";
+                break;
+              case "network":
+                errorMessage += "Network error. Check your connection.";
+                break;
+              case "service-not-allowed":
+                errorMessage += "Speech service not available.";
+                break;
+              default:
+                errorMessage += event.error;
+            }
+
+            this.showError(errorMessage);
+            this.isListening = false;
+            this.updateUI();
+          };
+        }
+
+        bindEvents() {
+          // Core recording functionality
+          this.recordBtn.addEventListener("click", () => {
+            this.toggleRecording();
+          });
+
+          // Settings modal events
+          this.settingsBtn.addEventListener("click", () => {
+            this.openSettings();
+          });
+
+          this.settingsClose.addEventListener("click", () => {
+            this.closeSettings();
+          });
+
+          this.settingsModal.addEventListener("click", (e) => {
+            if (e.target === this.settingsModal) {
+              this.closeSettings();
+            }
+          });
+
+          this.themeToggle.addEventListener("change", () => {
+            this.toggleTheme();
+          });
+
+          this.fontSizeSlider.addEventListener("input", () => {
+            this.updateFontSize();
+          });
+
+          this.languageSelect.addEventListener("change", () => {
+            this.settings.language = this.languageSelect.value;
+            this.quickLanguageSelect.value = this.settings.language;
+            this.saveSettings();
+            if (this.recognition) {
+              this.recognition.language = this.settings.language;
+            }
+          });
+
+          this.quickLanguageSelect.addEventListener("change", () => {
+            this.settings.language = this.quickLanguageSelect.value;
+            this.languageSelect.value = this.settings.language;
+            this.saveSettings();
+            if (this.recognition) {
+              this.recognition.language = this.settings.language;
+            }
+            this.showSuccess(
+              "Language changed to " +
+                this.quickLanguageSelect.options[
+                  this.quickLanguageSelect.selectedIndex
+                ].text
+            );
+          });
+
+          this.continuousMode.addEventListener("change", () => {
+            this.settings.continuousMode = this.continuousMode.checked;
+            this.saveSettings();
+            if (this.recognition) {
+              this.recognition.continuous = this.settings.continuousMode;
+            }
+          });
+
+          this.autoSave.addEventListener("change", () => {
+            this.settings.autoSave = this.autoSave.checked;
+            this.saveSettings();
+          });
+
+          this.timestamps.addEventListener("change", () => {
+            this.settings.timestamps = this.timestamps.checked;
+            this.saveSettings();
+          });
+
+          // Action buttons
+          this.clearBtn.addEventListener("click", () => {
+            this.clearText();
+          });
+
+          this.undoBtn.addEventListener("click", () => {
+            this.undo();
+          });
+
+          this.redoBtn.addEventListener("click", () => {
+            this.redo();
+          });
+
+          this.copyBtn.addEventListener("click", () => {
+            this.copyText();
+          });
+
+          this.formatBtn.addEventListener("click", () => {
+            this.formatText();
+          });
+
+          this.speakBtn.addEventListener("click", () => {
+            this.speakText();
+          });
+
+          this.exportBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            this.toggleExportMenu();
+          });
+
+          // Export menu items
+          document.querySelectorAll(".export-menu-item").forEach((item) => {
+            item.addEventListener("click", (e) => {
+              const format =
+                e.target.closest(".export-menu-item").dataset.format;
+              this.handleExport(format);
+              this.hideExportMenu();
+            });
+          });
+
+          // Close export menu when clicking outside
+          document.addEventListener("click", () => {
+            this.hideExportMenu();
+          });
+
+          this.historyBtn.addEventListener("click", () => {
+            this.showHistory();
+          });
+
+          this.shortcutsBtn.addEventListener("click", () => {
+            this.showShortcuts();
+          });
+
+          // Output events
+          this.output.addEventListener("input", () => {
+            this.finalTranscript = this.output.value;
+            this.updateStats();
+            this.autoSaveTranscription();
+          });
+
+          this.output.addEventListener("focus", () => {
+            this.output.readOnly = false;
+          });
+
+          // Auto-hide toasts
+          this.errorToast.addEventListener("click", () => {
+            this.hideError();
+          });
+
+          this.successToast.addEventListener("click", () => {
+            this.hideSuccess();
+          });
+        }
+
+        // Keyboard shortcuts
+        initKeyboardShortcuts() {
+          document.addEventListener("keydown", (e) => {
+            // Only trigger shortcuts when not typing in input fields
+            if (
+              e.target.tagName === "INPUT" ||
+              e.target.tagName === "TEXTAREA"
+            ) {
+              return;
+            }
+
+            if (e.ctrlKey || e.metaKey) {
+              switch (e.key) {
+                case "Enter":
+                  e.preventDefault();
+                  this.toggleRecording();
+                  break;
+                case "c":
+                  if (this.finalTranscript.trim()) {
+                    e.preventDefault();
+                    this.copyText();
+                  }
+                  break;
+                case "z":
+                  e.preventDefault();
+                  e.shiftKey ? this.redo() : this.undo();
+                  break;
+                case "y":
+                  e.preventDefault();
+                  this.redo();
+                  break;
+                case "Delete":
+                case "Backspace":
+                  e.preventDefault();
+                  this.clearText();
+                  break;
+                case "d":
+                  e.preventDefault();
+                  this.toggleTheme();
+                  break;
+              }
+            }
+
+            // Space bar to toggle recording (when not in text field)
+            if (e.code === "Space" && !e.ctrlKey && !e.metaKey) {
+              e.preventDefault();
+              this.toggleRecording();
+            }
+
+            // Escape key to close settings
+            if (e.key === "Escape") {
+              this.closeSettings();
+              this.hideExportMenu();
+            }
+          });
+        }
+
+        toggleRecording() {
+          if (!this.recognition) return;
+
+          if (this.isListening) {
+            this.recognition.stop();
+          } else {
+            try {
+              this.recognition.start();
+            } catch (err) {
+              this.showError("Could not start recording: " + err.message);
+            }
+          }
+        }
+
+        clearText() {
+          if (this.finalTranscript.trim()) {
+            this.saveToHistory();
+          }
+          this.finalTranscript = "";
+          this.interimTranscript = "";
+          this.updateOutput();
+          this.updateStats();
+          this.showSuccess("Text cleared");
+        }
+
+        updateOutput() {
+          this.output.value = this.finalTranscript + this.interimTranscript;
+          this.output.scrollTop = this.output.scrollHeight;
+        }
+
+        updateStats() {
+          const text = this.finalTranscript + this.interimTranscript;
+          const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+          const chars = text.length;
+
+          this.wordCount.textContent = `Words: ${words}`;
+          this.charCount.textContent = `Characters: ${chars}`;
+        }
+
+        // History management
+        saveToHistory() {
+          if (this.finalTranscript.trim()) {
+            this.transcriptionHistory.push({
+              text: this.finalTranscript.trim(),
+              timestamp: new Date().toISOString(),
+              language: this.settings.language,
+            });
+
+            // Keep only last 50 entries
+            if (this.transcriptionHistory.length > 50) {
+              this.transcriptionHistory = this.transcriptionHistory.slice(-50);
+            }
+
+            this.saveHistoryToStorage();
+            this.currentHistoryIndex = -1;
+          }
+        }
+
+        saveHistoryToStorage() {
+          try {
+            localStorage.setItem(
+              "voicescript-history",
+              JSON.stringify(this.transcriptionHistory)
+            );
+          } catch (e) {
+            console.warn("Could not save history:", e);
+          }
+        }
+
+        loadHistoryFromStorage() {
+          try {
+            const saved = localStorage.getItem("voicescript-history");
+            this.transcriptionHistory = saved ? JSON.parse(saved) : [];
+          } catch {
+            this.transcriptionHistory = [];
+          }
+        }
+
+        undo() {
+          if (this.transcriptionHistory.length > 0) {
+            if (this.currentHistoryIndex === -1) {
+              // First undo - save current state
+              this.currentHistoryIndex = this.transcriptionHistory.length - 1;
+            } else if (this.currentHistoryIndex > 0) {
+              this.currentHistoryIndex--;
+            } else {
+              this.showError("No more undo steps available");
+              return;
+            }
+
+            const historyEntry =
+              this.transcriptionHistory[this.currentHistoryIndex];
+            this.finalTranscript = historyEntry.text + " ";
+            this.updateOutput();
+            this.updateStats();
+            this.showSuccess("Undo applied");
+          }
+        }
+
+        redo() {
+          if (this.currentHistoryIndex !== -1) {
+            if (
+              this.currentHistoryIndex <
+              this.transcriptionHistory.length - 1
+            ) {
+              this.currentHistoryIndex++;
+              const historyEntry =
+                this.transcriptionHistory[this.currentHistoryIndex];
+              this.finalTranscript = historyEntry.text + " ";
+            } else {
+              // Redo to current state
+              this.currentHistoryIndex = -1;
+              this.finalTranscript = this.output.value;
+            }
+
+            this.updateOutput();
+            this.updateStats();
+            this.showSuccess("Redo applied");
+          }
+        }
+
+        copyText() {
+          const textToCopy = this.finalTranscript + this.interimTranscript;
+
+          if (!textToCopy.trim()) {
+            this.showError("No text to copy");
+            return;
+          }
+
+          // Modern clipboard API
+          if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard
+              .writeText(textToCopy)
+              .then(() => {
+                this.showSuccess("Text copied to clipboard!");
+              })
+              .catch(() => {
+                this.fallbackCopy(textToCopy);
+              });
+          } else {
+            this.fallbackCopy(textToCopy);
+          }
+        }
+
+        fallbackCopy(text) {
+          this.output.select();
+          this.output.setSelectionRange(0, 99999);
+
+          try {
+            document.execCommand("copy");
+            this.showSuccess("Text copied to clipboard!");
+          } catch (err) {
+            this.showError("Failed to copy text to clipboard");
+          }
+        }
+
+        formatText() {
+          if (!this.finalTranscript.trim()) {
+            this.showError("No text to format");
+            return;
+          }
+
+          // Basic text formatting: capitalize sentences, fix spacing
+          let formatted = this.finalTranscript
+            .replace(/\s+/g, " ") // Replace multiple spaces with single space
+            .replace(/\s*\.\s*/g, ". ") // Fix period spacing
+            .replace(/\s*,\s*/g, ", ") // Fix comma spacing
+            .replace(/\s*\?\s*/g, "? ") // Fix question mark spacing
+            .replace(/\s*!\s*/g, "! ") // Fix exclamation mark spacing
+            .replace(
+              /(^|\. )([a-z])/g,
+              (match, prefix, letter) => prefix + letter.toUpperCase()
+            ) // Capitalize sentences
+            .trim();
+
+          if (formatted !== this.finalTranscript.trim()) {
+            this.saveToHistory();
+            this.finalTranscript = formatted + " ";
+            this.updateOutput();
+            this.showSuccess("Text formatted");
+          } else {
+            this.showSuccess("Text is already well-formatted");
+          }
+        }
+
+        speakText() {
+          const textToSpeak = this.finalTranscript + this.interimTranscript;
+
+          if (!textToSpeak.trim()) {
+            this.showError("No text to speak");
+            return;
+          }
+
+          if ("speechSynthesis" in window) {
+            // Stop any ongoing speech
+            speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            utterance.lang = this.settings.language;
+            utterance.rate = 0.9;
+            utterance.pitch = 1;
+            utterance.volume = 1;
+
+            utterance.onstart = () => {
+              this.speakBtn.innerHTML = '<i class="fas fa-stop"></i> Stop';
+              this.speakBtn.onclick = () => {
+                speechSynthesis.cancel();
+              };
+            };
+
+            utterance.onend = () => {
+              this.speakBtn.innerHTML =
+                '<i class="fas fa-volume-up"></i> Speak';
+              this.speakBtn.onclick = () => this.speakText();
+            };
+
+            speechSynthesis.speak(utterance);
+          } else {
+            this.showError("Text-to-speech is not supported in this browser");
+          }
+        }
+
+        toggleExportMenu() {
+          this.exportMenu.classList.toggle("show");
+        }
+
+        hideExportMenu() {
+          this.exportMenu.classList.remove("show");
+        }
+
+        handleExport(format) {
+          const text = this.finalTranscript + this.interimTranscript;
+
+          if (!text.trim()) {
+            this.showError("No text to export");
+            return;
+          }
+
+          switch (format) {
+            case "txt":
+              this.downloadFile(text, "transcript.txt", "text/plain");
+              break;
+            case "doc":
+              this.downloadFile(
+                this.createDocContent(text),
+                "transcript.doc",
+                "application/msword"
+              );
+              break;
+            case "email":
+              this.shareViaEmail(text);
+              break;
+          }
+        }
+
+        openSettings() {
+          this.settingsModal.classList.add("show");
+          document.body.style.overflow = "hidden";
+        }
+
+        closeSettings() {
+          this.settingsModal.classList.remove("show");
+          document.body.style.overflow = "";
+        }
+
+        downloadFile(content, filename, type) {
+          const blob = new Blob([content], { type });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          this.showSuccess(`Downloaded ${filename}`);
+        }
+
+        createDocContent(text) {
+          return `
+                    <html xmlns:o="urn:schemas-microsoft-com:office:office" 
+                          xmlns:w="urn:schemas-microsoft-com:office:word" 
+                          xmlns="http://www.w3.org/TR/REC-html40">
+                    <head><meta charset="utf-8"><title>VoiceScript Transcript</title></head>
+                    <body>
+                        <h1>VoiceScript Transcript</h1>
+                        <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+                        <p><strong>Language:</strong> ${
+                          this.settings.language
+                        }</p>
+                        <hr>
+                        <p style="line-height: 1.6;">${text.replace(
+                          /\n/g,
+                          "<br>"
+                        )}</p>
+                    </body>
+                    </html>
+                `;
+        }
+
+        shareViaEmail(text) {
+          const subject = encodeURIComponent("VoiceScript Transcript");
+          const body = encodeURIComponent(
+            `VoiceScript Transcript\n\nDate: ${new Date().toLocaleDateString()}\nLanguage: ${
+              this.settings.language
+            }\n\n${text}`
+          );
+          window.open(`mailto:?subject=${subject}&body=${body}`);
+        }
+
+        autoSaveTranscription() {
+          if (this.settings.autoSave && this.finalTranscript.trim()) {
+            try {
+              localStorage.setItem("voicescript-current", this.finalTranscript);
+              this.autoSaveStatus.style.display = "inline-block";
+              setTimeout(() => {
+                this.autoSaveStatus.style.display = "none";
+              }, 2000);
+            } catch (e) {
+              console.warn("Auto-save failed:", e);
+            }
+          }
+        }
+
+        checkAutoSave() {
+          if (this.settings.autoSave) {
+            try {
+              const saved = localStorage.getItem("voicescript-current");
+              if (saved && saved.trim()) {
+                this.finalTranscript = saved;
+                this.updateOutput();
+                this.updateStats();
+                this.showSuccess("Previous session restored");
+              }
+            } catch (e) {
+              console.warn("Could not restore session:", e);
+            }
+          }
+
+          // Load history
+          this.loadHistoryFromStorage();
+        }
+
+        showHistory() {
+          if (this.transcriptionHistory.length === 0) {
+            this.showError("No transcription history available");
+            return;
+          }
+
+          // Create history modal (simplified for this implementation)
+          const historyText = this.transcriptionHistory
+            .slice(-10) // Show last 10 entries
+            .map((entry, index) => {
+              const date = new Date(entry.timestamp).toLocaleString();
+              return `${index + 1}. [${date}] ${entry.text.substring(0, 100)}${
+                entry.text.length > 100 ? "..." : ""
+              }`;
+            })
+            .join("\n\n");
+
+          alert("Recent Transcription History:\n\n" + historyText);
+        }
+
+        showShortcuts() {
+          const shortcuts = `
+Keyboard Shortcuts:
+
+• Ctrl/Cmd + Enter: Start/stop recording
+• Space: Start/stop recording (when not typing)
+• Ctrl/Cmd + C: Copy text
+• Ctrl/Cmd + Z: Undo
+• Ctrl/Cmd + Y: Redo
+• Ctrl/Cmd + Shift + Z: Redo
+• Ctrl/Cmd + Delete: Clear text
+• Ctrl/Cmd + D: Toggle theme
+
+Additional Features:
+• Click on toast notifications to dismiss them
+• Auto-save keeps your work safe
+• Continuous mode for hands-free recording
+• Export options include TXT, DOC, and email sharing
+                `.trim();
+
+          alert(shortcuts);
+        }
+
+        updateUI() {
+          if (this.isListening) {
+            this.recordBtn.classList.add("recording");
+            this.recordBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            this.status.innerHTML =
+              '<span class="status-indicator"></span>Listening...';
+            this.status.className = "status listening";
+            this.recordBtn.title = "Click to stop recording";
+            this.waveformContainer.classList.add("active");
+          } else {
+            this.recordBtn.classList.remove("recording");
+            this.recordBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            this.status.innerHTML =
+              '<span class="status-indicator"></span>Ready to listen';
+            this.status.className = "status idle";
+            this.recordBtn.title = "Click to start recording";
+            this.waveformContainer.classList.remove("active");
+          }
+        }
+
+        // Toast notifications
+        showError(message) {
+          this.errorMessage.textContent = message;
+          this.errorToast.classList.add("show");
+          setTimeout(() => {
+            this.hideError();
+          }, 5000);
+        }
+
+        hideError() {
+          this.errorToast.classList.remove("show");
+        }
+
+        showSuccess(message) {
+          this.successMessage.textContent = message;
+          this.successToast.classList.add("show");
+          setTimeout(() => {
+            this.hideSuccess();
+          }, 3000);
+        }
+
+        hideSuccess() {
+          this.successToast.classList.remove("show");
+        }
+
+        hideToasts() {
+          this.hideError();
+          this.hideSuccess();
+        }
+      }
+
+      // Initialize the app when the page loads
+      window.addEventListener("DOMContentLoaded", () => {
+        window.voiceScriptApp = new VoiceScriptApp();
+      });
+
+      // Handle page visibility change
+      document.addEventListener("visibilitychange", () => {
+        if (
+          document.hidden &&
+          window.voiceScriptApp &&
+          window.voiceScriptApp.isListening
+        ) {
+          window.voiceScriptApp.recognition.stop();
+        }
+      });
+
+      // Handle beforeunload to save work
+      window.addEventListener("beforeunload", (e) => {
+        if (
+          window.voiceScriptApp &&
+          window.voiceScriptApp.finalTranscript.trim()
+        ) {
+          window.voiceScriptApp.autoSaveTranscription();
+          window.voiceScriptApp.saveToHistory();
+        }
+      });
+    </script>
+  </body>
+</html>
