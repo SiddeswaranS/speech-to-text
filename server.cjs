@@ -2,12 +2,12 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const PORT = 5500;
+const PORT = process.env.PORT || 7001;
 
 const server = http.createServer((req, res) => {
     let filePath = '.' + req.url;
     if (filePath === './') {
-        filePath = './simple_speech_to_text.html';
+        filePath = './index.html';
     }
     
     const extname = path.extname(filePath);
@@ -49,7 +49,7 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, '127.0.0.1', () => {
     console.log(`🚀 Server running at http://127.0.0.1:${PORT}/`);
-    console.log(`📄 Access your speech-to-text app at: http://127.0.0.1:${PORT}/simple_speech_to_text.html`);
+    console.log(`📄 Access your speech-to-text app at: http://127.0.0.1:${PORT}/`);
     console.log('\nPress Ctrl+C to stop the server');
 });
 

@@ -4,17 +4,33 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node server.cjs",
     "test": "node test-complete.js",
     "test:simple": "node test-speech-app.js",
-    "serve": "node server.js"
+    "serve": "node server.cjs",
+    "test:playwright": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "devDependencies": {
     "@playwright/test": "^1.54.2",
     "playwright": "^1.54.2"
-  }
+  },
+  "dependencies": {
+    "playwright-core": "^1.54.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SiddeswaranS/speech-to-text.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SiddeswaranS/speech-to-text/issues"
+  },
+  "homepage": "https://github.com/SiddeswaranS/speech-to-text#readme"
 }

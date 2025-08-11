@@ -282,19 +282,52 @@
 
       .main-content {
         display: flex;
-        flex-direction: column;
         flex: 1;
         overflow: hidden;
-        gap: 16px;
-      }
-
-      .controls {
-        display: grid;
-        grid-template-columns: 75% 25%;
         gap: 20px;
         padding: 20px;
+      }
+
+      .left-column {
+        flex: 0 0 75%;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        overflow: hidden;
+      }
+
+      .right-column {
+        flex: 0 0 25%;
+        display: flex;
+        flex-direction: column;
         align-items: center;
+        justify-content: center;
+        min-height: 400px;
+      }
+
+      .top-toolbar {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 16px;
+        background: var(--glass-bg);
+        backdrop-filter: var(--backdrop-blur);
+        border-radius: 12px;
+        border: 1px solid var(--glass-border);
         flex-shrink: 0;
+      }
+
+      .bottom-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background: var(--glass-bg);
+        backdrop-filter: var(--backdrop-blur);
+        border-radius: 12px;
+        border: 1px solid var(--glass-border);
+        flex-shrink: 0;
+        gap: 12px;
       }
 
       .recording-section {
@@ -302,12 +335,19 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 12px;
-        padding: 20px;
+        gap: 24px;
+        padding: 48px;
         background: var(--glass-bg);
         backdrop-filter: var(--backdrop-blur);
-        border-radius: 16px;
+        border-radius: 20px;
         border: 1px solid var(--glass-border);
+        box-shadow: 0 8px 32px var(--shadow);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .recording-section:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 48px var(--shadow-hover);
       }
 
       .record-btn-container {
@@ -318,8 +358,8 @@
       }
 
       .record-btn {
-        width: 80px;
-        height: 80px;
+        width: 100px;
+        height: 100px;
         border-radius: 50%;
         border: none;
         background: linear-gradient(
@@ -331,7 +371,7 @@
         font-size: 1.25rem;
         cursor: pointer;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 8px 24px var(--shadow);
+        box-shadow: 0 12px 32px var(--shadow);
         position: relative;
         overflow: hidden;
         z-index: 2;
@@ -393,8 +433,8 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 120px;
-        height: 120px;
+        width: 150px;
+        height: 150px;
         pointer-events: none;
         opacity: 0;
         transition: opacity 0.3s ease;
@@ -412,24 +452,24 @@
       }
 
       .waveform-ring:nth-child(1) {
-        width: 90px;
-        height: 90px;
-        top: 15px;
-        left: 15px;
+        width: 110px;
+        height: 110px;
+        top: 20px;
+        left: 20px;
         animation-delay: 0s;
       }
 
       .waveform-ring:nth-child(2) {
-        width: 105px;
-        height: 105px;
-        top: 7.5px;
-        left: 7.5px;
+        width: 130px;
+        height: 130px;
+        top: 10px;
+        left: 10px;
         animation-delay: 0.5s;
       }
 
       .waveform-ring:nth-child(3) {
-        width: 120px;
-        height: 120px;
+        width: 150px;
+        height: 150px;
         top: 0;
         left: 0;
         animation-delay: 1s;
@@ -459,12 +499,18 @@
         }
       }
 
-      .action-buttons {
+      .toolbar-left {
         display: flex;
         gap: 8px;
-        justify-content: flex-start;
-        flex-shrink: 0;
         align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .toolbar-right {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
       }
 
       .btn {
@@ -589,15 +635,6 @@
         overflow: hidden;
       }
 
-      .output-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
-        padding: 0 4px;
-        flex-shrink: 0;
-      }
-
       .output-stats {
         display: flex;
         align-items: center;
@@ -663,27 +700,6 @@
         color: var(--text-muted);
         font-style: normal;
         opacity: 0.7;
-      }
-
-      .toolbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 8px;
-        padding: 8px 0;
-        border-top: 1px solid var(--border);
-        flex-shrink: 0;
-      }
-
-      .toolbar-left {
-        display: flex;
-        gap: 8px;
-      }
-
-      .toolbar-right {
-        display: flex;
-        gap: 8px;
-        align-items: center;
       }
 
       .settings-btn-inline {
@@ -963,19 +979,24 @@
           padding-bottom: 12px;
         }
 
-        .controls {
-          grid-template-columns: 1fr;
-          gap: 12px;
+        .main-content {
+          flex-direction: column;
+          gap: 16px;
           padding: 12px;
         }
 
-        .action-buttons {
-          order: 2;
-          justify-content: center;
+        .left-column,
+        .right-column {
+          flex: 1 1 auto;
+        }
+
+        .right-column {
+          order: -1;
+          min-height: 200px;
         }
 
         .recording-section {
-          order: 1;
+          padding: 16px;
         }
 
         .output-stats {
@@ -998,43 +1019,39 @@
         }
 
         .record-btn {
-          width: 64px;
-          height: 64px;
+          width: 80px;
+          height: 80px;
           font-size: 1.25rem;
         }
 
         .waveform-container {
-          width: 100px;
-          height: 100px;
+          width: 120px;
+          height: 120px;
         }
 
         .waveform-ring:nth-child(1) {
-          width: 75px;
-          height: 75px;
-          top: 12.5px;
-          left: 12.5px;
+          width: 85px;
+          height: 85px;
+          top: 17.5px;
+          left: 17.5px;
         }
 
         .waveform-ring:nth-child(2) {
-          width: 87.5px;
-          height: 87.5px;
-          top: 6.25px;
-          left: 6.25px;
+          width: 102.5px;
+          height: 102.5px;
+          top: 8.75px;
+          left: 8.75px;
         }
 
         .waveform-ring:nth-child(3) {
-          width: 100px;
-          height: 100px;
+          width: 120px;
+          height: 120px;
           top: 0;
           left: 0;
         }
 
-        .action-buttons {
-          flex-wrap: wrap;
-          gap: 6px;
-        }
-
-        .toolbar {
+        .top-toolbar,
+        .bottom-toolbar {
           flex-wrap: wrap;
           gap: 8px;
         }
@@ -1042,6 +1059,7 @@
         .toolbar-left,
         .toolbar-right {
           gap: 6px;
+          flex-wrap: wrap;
         }
 
         .btn-sm {
@@ -1049,25 +1067,6 @@
           font-size: 14px;
           min-height: 44px;
           flex: 0 0 auto;
-        }
-
-        .action-buttons {
-          flex-wrap: wrap;
-          gap: 8px;
-          justify-content: center;
-        }
-
-        .toolbar {
-          flex-wrap: wrap;
-          gap: 8px;
-          justify-content: center;
-        }
-
-        .toolbar-left,
-        .toolbar-right {
-          gap: 8px;
-          flex-wrap: wrap;
-          justify-content: center;
         }
 
         .settings-fab {
@@ -1103,6 +1102,11 @@
           padding: 8px;
         }
 
+        .main-content {
+          padding: 8px;
+          gap: 12px;
+        }
+
         .output {
           padding: 12px;
           font-size: 16px;
@@ -1128,25 +1132,25 @@
         }
 
         .record-btn {
-          width: 56px;
-          height: 56px;
+          width: 70px;
+          height: 70px;
           font-size: 1.125rem;
         }
 
-        .action-buttons .btn {
-          padding: 8px 10px;
-          font-size: 14px;
-          min-height: 44px;
-          min-width: 44px;
+        .recording-section {
+          padding: 12px;
+        }
+
+        .top-toolbar,
+        .bottom-toolbar {
+          padding: 8px 12px;
+          gap: 6px;
         }
 
         .btn-sm {
           padding: 8px 10px;
           font-size: 13px;
-        }
-
-        .toolbar {
-          gap: 6px;
+          min-height: 40px;
         }
 
         .toolbar-left,
@@ -1258,65 +1262,25 @@
           </div>
         </div>
 
-        <!-- Main Content Area -->
+        <!-- Main Content Area with 2-column layout -->
         <div class="main-content">
-          <!-- Controls Section with 2-column layout -->
-          <div class="controls">
-            <!-- Left Column: Action buttons and controls (75%) -->
-            <div class="action-buttons">
-              <button id="clearBtn" class="btn btn-danger btn-sm">
-                <i class="fas fa-trash"></i>
-                Clear
-              </button>
-              <button id="undoBtn" class="btn btn-secondary btn-sm">
-                <i class="fas fa-undo"></i>
-                Undo
-              </button>
-              <button id="redoBtn" class="btn btn-secondary btn-sm">
-                <i class="fas fa-redo"></i>
-                Redo
-              </button>
-            </div>
-
-            <!-- Right Column: Recording section (25%) -->
-            <div class="recording-section">
-              <div class="record-btn-container">
-                <div class="waveform-container" id="waveformContainer">
-                  <div class="waveform-ring"></div>
-                  <div class="waveform-ring"></div>
-                  <div class="waveform-ring"></div>
-                </div>
-                <button
-                  id="recordBtn"
-                  class="record-btn"
-                  title="Click to start/stop recording"
-                  aria-label="Start/stop recording"
-                >
-                  <i class="fas fa-microphone"></i>
-                </button>
-              </div>
-
-              <div class="status-container">
-                <div id="status" class="status idle">
-                  <span class="status-indicator"></span>
-                  Ready to listen
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Output Container -->
-          <div class="output-container">
-            <textarea
-              id="output"
-              class="output"
-              placeholder="Your transcribed speech will appear here... Click the microphone to start recording."
-              aria-label="Transcription output"
-              readonly
-            ></textarea>
-
-            <div class="toolbar">
+          <!-- Left Column (75%): Text output with toolbars -->
+          <div class="left-column">
+            <!-- Top Toolbar: Frequently used buttons -->
+            <div class="top-toolbar">
               <div class="toolbar-left">
+                <button id="clearBtn" class="btn btn-danger btn-sm">
+                  <i class="fas fa-trash"></i>
+                  Clear
+                </button>
+                <button id="undoBtn" class="btn btn-secondary btn-sm">
+                  <i class="fas fa-undo"></i>
+                  Undo
+                </button>
+                <button id="redoBtn" class="btn btn-secondary btn-sm">
+                  <i class="fas fa-redo"></i>
+                  Redo
+                </button>
                 <button id="formatBtn" class="btn btn-secondary btn-sm">
                   <i class="fas fa-text-height"></i>
                   Format
@@ -1326,11 +1290,28 @@
                   Speak
                 </button>
               </div>
-              <div class="toolbar-right">
+            </div>
+
+            <!-- Text Output Area -->
+            <div class="output-container">
+              <textarea
+                id="output"
+                class="output"
+                placeholder="Your transcribed speech will appear here... Click the microphone to start recording."
+                aria-label="Transcription output"
+                readonly
+              ></textarea>
+            </div>
+
+            <!-- Bottom Toolbar: Export and settings buttons -->
+            <div class="bottom-toolbar">
+              <div class="toolbar-left">
                 <button id="copyBtn" class="btn btn-success btn-sm">
                   <i class="fas fa-copy"></i>
                   Copy
                 </button>
+              </div>
+              <div class="toolbar-right">
                 <div style="position: relative; display: inline-block">
                   <button id="exportBtn" class="btn btn-primary btn-sm">
                     <i class="fas fa-download"></i>
@@ -1355,10 +1336,41 @@
                     </button>
                   </div>
                 </div>
-                <button id="settingsBtn" class="btn btn-secondary btn-sm settings-btn-inline">
+                <button
+                  id="settingsBtn"
+                  class="btn btn-secondary btn-sm settings-btn-inline"
+                >
                   <i class="fas fa-cog"></i>
                   Settings
                 </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column (25%): Microphone and recording animation only -->
+          <div class="right-column">
+            <div class="recording-section">
+              <div class="record-btn-container">
+                <div class="waveform-container" id="waveformContainer">
+                  <div class="waveform-ring"></div>
+                  <div class="waveform-ring"></div>
+                  <div class="waveform-ring"></div>
+                </div>
+                <button
+                  id="recordBtn"
+                  class="record-btn"
+                  title="Click to start/stop recording"
+                  aria-label="Start/stop recording"
+                >
+                  <i class="fas fa-microphone"></i>
+                </button>
+              </div>
+
+              <div class="status-container">
+                <div id="status" class="status idle">
+                  <span class="status-indicator"></span>
+                  Ready to listen
+                </div>
               </div>
             </div>
           </div>

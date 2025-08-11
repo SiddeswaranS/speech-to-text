@@ -8,7 +8,7 @@ This is a professional web-based Speech-to-Text application called "VoiceScript"
 
 ## Key Features & Architecture
 
-- **Single-file architecture**: All functionality contained in `simple_speech_to_text.html`
+- **Single-file architecture**: All functionality contained in `index.html`
 - **Web Speech API**: Uses browser's native `SpeechRecognition` API (webkitSpeechRecognition for webkit browsers)
 - **Real-time transcription**: Displays both interim and final transcription results with visual feedback
 - **Multi-language support**: Supports 15 languages including English (US/UK), Spanish (Spain/Mexico), French, German, Italian, Portuguese (Brazil/Portugal), Chinese (Simplified/Traditional), Japanese, Korean, Russian, and Arabic
@@ -31,13 +31,17 @@ Since this is a static HTML file, no build process is required:
 
 ```bash
 # Open directly in browser
-start simple_speech_to_text.html  # Windows
-open simple_speech_to_text.html   # macOS
-xdg-open simple_speech_to_text.html  # Linux
+start index.html  # Windows
+open index.html   # macOS
+xdg-open index.html  # Linux
 
 # Or serve locally with any static server
 python -m http.server 8000
-# Then navigate to http://localhost:8000/simple_speech_to_text.html
+# Then navigate to http://localhost:8000/
+
+# Or use the included Node.js server
+npm start
+# Then navigate to http://localhost:7001/
 ```
 
 ## Code Structure
