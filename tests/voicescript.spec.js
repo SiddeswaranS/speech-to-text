@@ -18,18 +18,24 @@ test.describe('VoiceScript UI Tests', () => {
   });
 
   test('should display new 2-column layout correctly', async ({ page }) => {
-    // Check if controls section has grid layout
-    const controls = page.locator('.controls');
-    await expect(controls).toBeVisible();
+    // Check if main content has the 2-column layout
+    const mainContent = page.locator('.main-content');
+    await expect(mainContent).toBeVisible();
     
-    // Check if action buttons are in left column
-    const actionButtons = page.locator('.action-buttons');
-    await expect(actionButtons).toBeVisible();
-    await expect(actionButtons.locator('#clearBtn')).toBeVisible();
-    await expect(actionButtons.locator('#undoBtn')).toBeVisible();
-    await expect(actionButtons.locator('#redoBtn')).toBeVisible();
+    // Check if left column exists with action buttons
+    const leftColumn = page.locator('.left-column');
+    await expect(leftColumn).toBeVisible();
+    
+    // Check top toolbar buttons
+    const topToolbar = page.locator('.top-toolbar');
+    await expect(topToolbar).toBeVisible();
+    await expect(topToolbar.locator('#clearBtn')).toBeVisible();
+    await expect(topToolbar.locator('#undoBtn')).toBeVisible();
+    await expect(topToolbar.locator('#redoBtn')).toBeVisible();
     
     // Check if recording section is in right column
+    const rightColumn = page.locator('.right-column');
+    await expect(rightColumn).toBeVisible();
     const recordingSection = page.locator('.recording-section');
     await expect(recordingSection).toBeVisible();
     await expect(recordingSection.locator('#recordBtn')).toBeVisible();
@@ -179,7 +185,6 @@ test.describe('VoiceScript UI Tests', () => {
     await page.click('#settingsBtn');
     
     const fontSlider = page.locator('#fontSizeSlider');
-    const fontValue = page.locator('#fontSizeValue');
     
     // Get initial font size
     const initialSize = await output.evaluate(el => 
@@ -188,13 +193,16 @@ test.describe('VoiceScript UI Tests', () => {
     
     // Change font size
     await fontSlider.fill('20');
-    await expect(fontValue).toContainText('20px');
+    
+    // Wait for the change to apply
+    await page.waitForTimeout(100);
     
     // Check if font size changed
     const newSize = await output.evaluate(el => 
       window.getComputedStyle(el).fontSize
     );
     
+    expect(newSize).toBe('20px');
     expect(newSize).not.toBe(initialSize);
   });
 
@@ -241,22 +249,32 @@ test.describe('VoiceScript UI Tests', () => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
     
-    // Check if layout adjusts
-    const controls = page.locator('.controls');
-    await expect(controls).toBeVisible();
+    // Wait for viewport change to apply
+    await page.waitForTimeout(100);
     
-    // In mobile, grid should be single column
-    const gridCols = await controls.evaluate(el => 
-      window.getComputedStyle(el).gridTemplateColumns
+    // Check if main content adjusts to column layout
+    const mainContent = page.locator('.main-content');
+    await expect(mainContent).toBeVisible();
+    
+    // In mobile, should be flex-direction: column
+    const flexDirection = await mainContent.evaluate(el => 
+      window.getComputedStyle(el).flexDirection
     );
-    expect(gridCols).toBe('1fr');
+    expect(flexDirection).toBe('column');
     
-    // Recording section should be first (order: 1)
-    const recordingSection = page.locator('.recording-section');
-    const order = await recordingSection.evaluate(el => 
+    // Recording section should be visible and first
+    const rightColumn = page.locator('.right-column');
+    const order = await rightColumn.evaluate(el => 
       window.getComputedStyle(el).order
     );
     expect(order).toBe('1');
+    
+    // Left column should be second
+    const leftColumn = page.locator('.left-column');
+    const leftOrder = await leftColumn.evaluate(el => 
+      window.getComputedStyle(el).order
+    );
+    expect(leftOrder).toBe('2');
   });
 
   test('should handle continuous recording mode', async ({ page }) => {
