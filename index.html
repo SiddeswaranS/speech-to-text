@@ -82,6 +82,7 @@
         height: 100vh;
         width: 100%;
         position: relative;
+        overflow: hidden;
       }
 
       .main-container {
@@ -163,7 +164,7 @@
       }
 
       .settings-panel-content::-webkit-scrollbar {
-        width: 6px;
+        width: 8px;
       }
 
       .settings-panel-content::-webkit-scrollbar-track {
@@ -286,6 +287,7 @@
         overflow: hidden;
         gap: 20px;
         padding: 20px;
+        min-height: 0;
       }
 
       .left-column {
@@ -294,6 +296,7 @@
         flex-direction: column;
         gap: 16px;
         overflow: hidden;
+        min-height: 0;
       }
 
       .right-column {
@@ -302,7 +305,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        min-height: 400px;
+        min-height: 0;
       }
 
       .top-toolbar {
@@ -624,6 +627,7 @@
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        min-height: 0;
       }
 
       .output-stats {
@@ -679,6 +683,7 @@
         position: relative;
         flex: 1;
         overflow-y: auto;
+        overflow-y: auto;
       }
 
       .output:focus {
@@ -691,6 +696,33 @@
         color: var(--text-muted);
         font-style: normal;
         opacity: 0.7;
+      }
+
+      /* Custom scrollbar for textarea */
+      .output::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .output::-webkit-scrollbar-track {
+        background: rgba(226, 232, 240, 0.3);
+        border-radius: 4px;
+        margin: 4px;
+      }
+
+      .output::-webkit-scrollbar-thumb {
+        background: var(--accent-primary);
+        border-radius: 4px;
+        transition: background 0.3s ease;
+      }
+
+      .output::-webkit-scrollbar-thumb:hover {
+        background: var(--accent-secondary);
+      }
+
+      /* Firefox scrollbar */
+      .output {
+        scrollbar-width: thin;
+        scrollbar-color: var(--accent-primary) rgba(226, 232, 240, 0.3);
       }
 
       .settings-btn-inline {
@@ -957,6 +989,32 @@
         background: var(--glass-bg);
       }
 
+      /* Large tablets and small laptops */
+      @media (max-width: 1024px) {
+        .left-column {
+          flex: 0 0 70%;
+        }
+
+        .right-column {
+          flex: 0 0 30%;
+        }
+
+        .recording-section {
+          padding: 32px;
+        }
+
+        .record-btn {
+          width: 80px;
+          height: 80px;
+        }
+
+        .waveform-container {
+          width: 120px;
+          height: 120px;
+        }
+      }
+
+      /* Tablets and mobile devices */
       @media (max-width: 768px) {
         .main-container {
           padding: 12px;
@@ -976,18 +1034,28 @@
           padding: 12px;
         }
 
-        .left-column,
-        .right-column {
+        .left-column {
           flex: 1 1 auto;
+          width: 100%;
+          max-width: 100%;
+          order: 2;
         }
 
         .right-column {
-          order: -1;
-          min-height: 200px;
+          flex: 0 0 auto;
+          width: 100%;
+          max-width: 100%;
+          order: 1;
+          min-height: auto;
+          margin-bottom: 16px;
         }
 
         .recording-section {
-          padding: 16px;
+          padding: 24px;
+          background: var(--glass-bg);
+          backdrop-filter: var(--backdrop-blur);
+          border-radius: 16px;
+          border: 1px solid var(--glass-border);
         }
 
         .output-stats {
@@ -1100,7 +1168,13 @@
 
         .output {
           padding: 12px;
-          font-size: 16px;
+          font-size: 14px;
+          min-height: 250px;
+          max-height: 350px;
+        }
+
+        .output-container {
+          min-height: 250px;
         }
 
         .header {
@@ -1187,6 +1261,62 @@
       }
 
       /* Print styles */
+      /* Landscape orientation on mobile */
+      @media (max-width: 768px) and (orientation: landscape) {
+        .main-content {
+          flex-direction: row;
+        }
+
+        .left-column {
+          flex: 1 1 70%;
+          order: 1;
+        }
+
+        .right-column {
+          flex: 0 0 30%;
+          order: 2;
+          margin-bottom: 0;
+        }
+
+        .recording-section {
+          padding: 16px;
+        }
+
+        .output {
+          min-height: 150px;
+          max-height: 250px;
+        }
+      }
+
+      /* Very small screens */
+      @media (max-width: 360px) {
+        .btn-sm {
+          padding: 8px 10px;
+          font-size: 12px;
+          min-height: 40px;
+        }
+
+        .record-btn {
+          width: 60px;
+          height: 60px;
+          font-size: 1rem;
+        }
+
+        .waveform-container {
+          width: 90px;
+          height: 90px;
+        }
+
+        .header h1 {
+          font-size: 1rem;
+        }
+
+        .output {
+          font-size: 13px;
+          min-height: 200px;
+        }
+      }
+
       @media print {
         .settings-panel,
         .controls,
