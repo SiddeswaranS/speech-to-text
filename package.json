@@ -12,15 +12,34 @@
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
-    "test:report": "playwright show-report"
+    "test:report": "playwright show-report",
+    "test:chrome": "playwright test --project=chromium",
+    "test:firefox": "playwright test --project=firefox",
+    "test:webkit": "playwright test --project=webkit",
+    "test:mobile": "playwright test --project='Mobile Chrome' --project='Mobile Safari'",
+    "test:allure": "cross-env ALLURE_RESULTS_DIR=allure-results playwright test",
+    "allure:generate": "allure generate allure-results -o allure-report --clean",
+    "allure:open": "allure open allure-report",
+    "test:a11y": "playwright test tests/accessibility.spec.js",
+    "test:lighthouse": "playwright test tests/lighthouse.spec.js",
+    "test:ci": "cross-env CI=true playwright test",
+    "test:wait": "wait-on http://localhost:7001 && npm run test:playwright"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "devDependencies": {
+    "@faker-js/faker": "^9.9.0",
+    "@playwright/experimental-ct-react": "^1.54.2",
     "@playwright/test": "^1.54.2",
-    "playwright": "^1.54.2"
+    "allure-playwright": "^3.3.3",
+    "axe-playwright": "^2.1.0",
+    "cross-env": "^10.0.0",
+    "dotenv": "^17.2.1",
+    "playwright": "^1.54.2",
+    "playwright-lighthouse": "^4.0.0",
+    "wait-on": "^8.0.4"
   },
   "dependencies": {
     "playwright-core": "^1.54.2"

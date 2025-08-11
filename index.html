@@ -1870,12 +1870,14 @@
           this.recognition.onstart = () => {
             this.isListening = true;
             this.startTime = new Date();
+            this.recordBtn.classList.add('recording');
             this.updateUI();
             this.hideToasts();
           };
 
           this.recognition.onend = () => {
             this.isListening = false;
+            this.recordBtn.classList.remove('recording');
             this.updateUI();
 
             if (this.settings.continuousMode && this.finalTranscript.trim()) {
@@ -1943,6 +1945,7 @@
 
             this.showError(errorMessage);
             this.isListening = false;
+            this.recordBtn.classList.remove('recording');
             this.updateUI();
           };
         }
@@ -2313,16 +2316,23 @@
 
           // Basic text formatting: capitalize sentences, fix spacing
           let formatted = this.finalTranscript
+            .trim()
             .replace(/\s+/g, " ") // Replace multiple spaces with single space
             .replace(/\s*\.\s*/g, ". ") // Fix period spacing
             .replace(/\s*,\s*/g, ", ") // Fix comma spacing
             .replace(/\s*\?\s*/g, "? ") // Fix question mark spacing
-            .replace(/\s*!\s*/g, "! ") // Fix exclamation mark spacing
-            .replace(
-              /(^|\. )([a-z])/g,
-              (match, prefix, letter) => prefix + letter.toUpperCase()
-            ) // Capitalize sentences
-            .trim();
+            .replace(/\s*!\s*/g, "! ") // Fix exclamation mark spacing;
+            
+          // Capitalize first letter of the text
+          if (formatted.length > 0) {
+            formatted = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+          }
+          
+          // Capitalize letters after sentence endings
+          formatted = formatted.replace(
+            /([.!?]\s+)([a-z])/g,
+            (match, punctuation, letter) => punctuation + letter.toUpperCase()
+          );
 
           if (formatted !== this.finalTranscript.trim()) {
             this.saveToHistory();
