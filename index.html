@@ -1032,6 +1032,8 @@
           flex-direction: column;
           gap: 16px;
           padding: 12px;
+          height: calc(100vh - 120px);
+          overflow-y: auto;
         }
 
         .left-column {
@@ -1039,6 +1041,9 @@
           width: 100%;
           max-width: 100%;
           order: 2;
+          min-height: 0;
+          display: flex;
+          flex-direction: column;
         }
 
         .right-column {
@@ -1052,10 +1057,7 @@
 
         .recording-section {
           padding: 24px;
-          background: var(--glass-bg);
-          backdrop-filter: var(--backdrop-blur);
-          border-radius: 16px;
-          border: 1px solid var(--glass-border);
+          background: transparent;
         }
 
         .output-stats {
@@ -1169,12 +1171,16 @@
         .output {
           padding: 12px;
           font-size: 14px;
-          min-height: 250px;
-          max-height: 350px;
+          min-height: 200px;
+          height: auto;
+          flex: 1;
         }
 
         .output-container {
-          min-height: 250px;
+          min-height: 200px;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
         }
 
         .header {
@@ -1280,6 +1286,7 @@
 
         .recording-section {
           padding: 16px;
+          background: transparent;
         }
 
         .output {
